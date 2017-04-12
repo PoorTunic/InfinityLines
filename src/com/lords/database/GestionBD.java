@@ -1,6 +1,6 @@
-package bd;
+package com.lords.database;
 
-import bd.ConexionBD;
+import com.lords.database.ConexionBD;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,4 +1,4 @@
-package bd;
+package com.lords.database;
 
 //import com.mysql.jdbc.Connection;
 import java.sql.Connection;

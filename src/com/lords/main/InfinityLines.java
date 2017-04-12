@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package infinitylines;
+package com.lords.main;
+
+import com.lords.forms.Login;
 
 /**
  *
@@ -15,7 +17,8 @@ public class InfinityLines {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        Login log = new Login();
+        log.setVisible(true);
+        log.setLocationRelativeTo(null);
     }
-    
 }

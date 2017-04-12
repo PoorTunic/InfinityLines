@@ -5,6 +5,12 @@
  */
 package com.lords.forms;
 
+import com.lords.database.GestionBD;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -36,11 +42,12 @@ public class Login extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jtfUsuario.setText("jTextField1");
-
-        jpfPassword.setText("jPasswordField1");
-
         btnAcceder.setText("jButton1");
+        btnAcceder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAccederActionPerformed(evt);
+            }
+        });
 
         btnSalir.setText("jButton1");
 
@@ -51,17 +58,17 @@ public class Login extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(140, 140, 140)
-                        .addComponent(jtfUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(117, 117, 117)
-                        .addComponent(jpfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(135, 135, 135)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnSalir)
-                            .addComponent(btnAcceder))))
-                .addContainerGap(172, Short.MAX_VALUE))
+                            .addComponent(btnAcceder)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(140, 140, 140)
+                        .addComponent(jtfUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(117, 117, 117)
+                        .addComponent(jpfPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(62, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -80,39 +87,55 @@ public class Login extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnAccederActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAccederActionPerformed
+        acceder();
+    }//GEN-LAST:event_btnAccederActionPerformed
+
     /**
      * @param args the command line arguments
      */
     
     private void acceder() {
-		String username = jtfUsuario.getText();
-		char[] getPass = jpfPassword.getPassword();
-		String password = new String(getPass);
-		if(username.equals(null)|| password.equals(null)|| password.equals("")|| username.equals("")){
-			JOptionPane.showMessageDialog(null, "Usuario/Contraseña vacíos");
-		}else{
-			String mensaje="";
-			usuarioModelo.setUsername(username);
-			usuarioModelo.setPassword(password);
-			usuarioModelo.setRol("");
-			mensaje=usuarioBo.acceder(usuarioModelo);
-			JOptionPane.showMessageDialog(null, mensaje);
-			if(!mensaje.equals("No existe usuario")){
-				if(usuarioModelo.getRol().equals("admon")){
-					
-					this.setVisible(false);
-					menu_admin.setVisible(true);
-					menu_admin.setLocationRelativeTo(null);
-				}else if(usuarioModelo.getRol().equals("secretary")){
-					
-				}else{
-					
-				}
-			}else{
-				JOptionPane.showMessageDialog(null, "Usuario/Contraseña incorrectos");
-			}
-		}
-	}
+        String username = jtfUsuario.getText();
+        char[] getPass = jpfPassword.getPassword();
+        String password = new String(getPass);
+        if(username.equals(null)|| password.equals(null)|| password.equals("")|| username.equals("")){
+                JOptionPane.showMessageDialog(null, "Usuario/Contraseña vacíos");
+        }else{
+            if(username.length()<6 || password.length()<8){
+                JOptionPane.showMessageDialog(null, "No se cumple con la longitud necesaria de caracteres");
+            }else{
+                existenciaBD(username, password);
+            }
+        }
+    }
+    
+    private void existenciaBD(String username, String password){
+        GestionBD obBD = new GestionBD();
+        String iBD = "select usuario.username, usuario.password,rollusuario.roll from usuario inner join rollusuario on rollusuario.id_usuario=usuario.id_usuario where usuario.username='"+username+"' and password='"+password+"'";
+        ResultSet cdr = obBD.consultas(iBD);
+        try {
+            while(cdr.next()){
+                String user = cdr.getString(1);
+                String pass = cdr.getString(2);
+
+                JOptionPane.showMessageDialog(null, user+" "+pass);
+                String mensaje = "";
+                if(user.equals("") || user.isEmpty() || pass.isEmpty() || pass.equals("")){
+                    mensaje = "Usuario incorrecto o no existe\nContraseña incorrecta";
+                }else{
+                    if(user.equals(username) && pass.equals(password)){
+                        mensaje = "Bienvenido "+username;
+                    }else{
+                        mensaje = "Usuario/Contraseña incorrectos";
+                    }    
+                }
+                JOptionPane.showMessageDialog(null, mensaje);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error conectando a la base de datos");
+        }
+    }
     
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
